@@ -1,12 +1,11 @@
 import java.util.BitSet;
-import java.util.Random;
 
 public class bigNumber {
     private BitSet intBitSet;
     private BitSet dotBitSet;
     private boolean isNegative;
 
-    bigNumber(bigNumber otherBD){
+    private bigNumber(bigNumber otherBD){
         intBitSet = bitsetCopy(otherBD.intBitSet);
         dotBitSet = bitsetCopy(otherBD.dotBitSet);
         isNegative = otherBD.isNegative;
@@ -28,14 +27,47 @@ public class bigNumber {
             i++;
         }
     }
+    bigNumber(long number){
+        intBitSet = new BitSet(64);
+        dotBitSet = new BitSet(1);
+        isNegative = number < 0;
+        number = Math.abs(number);
+        int i = 0;
+        while(number > 0){
+            intBitSet.set(i, number%2 == 1);
+            number/=2;
+            i++;
+        }
+    }
+
     bigNumber(double number, int precision){
         intBitSet = new BitSet(32);
         dotBitSet = new BitSet(precision);
         isNegative = number < 0;
         number = Math.abs(number);
         int i = 0;
-        int intNumber = (int)number;
+        long intNumber = (long) number;
         double dotNumber = number - intNumber;
+        while(intNumber > 0){
+            intBitSet.set(i, intNumber%2 == 1);
+            intNumber/=2;
+            i++;
+        }
+        for(i = 0; i < precision; i++){
+            dotNumber *= 2;
+            dotBitSet.set(i, dotNumber >= 1);
+            dotNumber = dotNumber - (int) dotNumber;
+        }
+    }
+
+    bigNumber(float number, int precision){
+        intBitSet = new BitSet(32);
+        dotBitSet = new BitSet(precision);
+        isNegative = number < 0;
+        number = Math.abs(number);
+        int i = 0;
+        long intNumber = (long) number;
+        float dotNumber = number - intNumber;
         while(intNumber > 0){
             intBitSet.set(i, intNumber%2 == 1);
             intNumber/=2;
@@ -154,10 +186,10 @@ public class bigNumber {
     public double toDouble(){
         int biggestId = getBiggestId(intBitSet);
         int lowestId = getBiggestId(dotBitSet);
-        if(biggestId > 31) throw new IllegalStateException();
-        int intResult = 0;
+        //if(biggestId > 31) throw new IllegalStateException();
+        double intResult = 0;
         double dotResult = 0;
-        int mod = 1;
+        double mod = 1;
         for(int i = 0; i <= biggestId; i++){
             intResult += getAsInt(i)*mod;
             mod*=2;
@@ -167,16 +199,16 @@ public class bigNumber {
             dotResult += getAsDot(i) * modD;
             modD/=2.0;
         }
-        double result = (double) intResult + dotResult;
+        double result = intResult + dotResult;
         return result * (isNegative?-1:1);
     }
 
     @Override
     public String toString() {
-        String s = ".";
-        for(int i = 0; i <= getLeadId(); i++) s = (getI(i)?"1":"0") + s;
-        for(int i = 0; i <= getLastId(); i++) s = s + (getD(i)?"1":"0");
-        return s;
+        StringBuilder s = new StringBuilder(".");
+        for(int i = 0; i <= getLeadId(); i++) s.insert(0, (getI(i) ? "1" : "0"));
+        for(int i = 0; i <= getLastId(); i++) s.append(getD(i) ? "1" : "0");
+        return s.toString();
     }
 
     private boolean isIntAbsBigger(bigNumber bd){
@@ -397,8 +429,8 @@ public class bigNumber {
     }
 
     public static void main(String[] args){
-        bigNumber bd1 = bigNumberFromString("13265.234");
-        bigNumber bd2 = new bigNumber(10.23525435, 32);
+        bigNumber bd1 = bigNumberFromString("1324643665.24353554534");
+        bigNumber bd2 = new bigNumber(10346354567687.98, 64);
         bigNumber bdDiv = mul(bd1,bd2);
         System.out.println(bd1.toDouble());
         System.out.println(bd1);
@@ -409,9 +441,6 @@ public class bigNumber {
         System.out.println(bdDiv.toDouble());
         System.out.println(bdDiv);
         System.out.println("-----------");
-        //System.out.println(bd1.toDouble()/bd2.toDouble());
-        //System.out.println(bdDiv.toDouble());
-        //System.out.println(Math.abs(bd1.toDouble()/bd2.toDouble() - bdDiv.toDouble()) < 1e-8);
         System.out.println("end");
     }
 }

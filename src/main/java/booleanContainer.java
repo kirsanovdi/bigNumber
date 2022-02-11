@@ -46,9 +46,10 @@ public class booleanContainer {
     }
     /**значение в ячейке с индесом pos**/
     public boolean get(int pos){
-        if(pos < 0 || pos >= size()) {
+        /*if(pos < 0 || pos >= size()) {
             System.out.println("incorrect call get() with pos = " + pos + " in " + this + " where max is " + size());
-        }
+        }*/
+        if(pos > size()) return false;
         return bitSet.get(pos);
     }
     /**значения как booleanContainer из ячеек с индесом от incl(включая) до excl(исключая)**/

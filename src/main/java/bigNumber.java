@@ -97,8 +97,8 @@ public class bigNumber {
     }
     /**число из string**/
     bigNumber(String str){
-        String[] s = str.replace("-", "").split("\\.");
         bigNumber result = new bigNumber(1, 1);
+        String[] s = str.replace("-", "").split("\\.");
         bigNumber auxBN = new bigNumber(0);
         bigNumber bn10 = new bigNumber(10);
         bigNumber bn01 = new bigNumber(0.1, 128);
@@ -111,10 +111,10 @@ public class bigNumber {
             auxBN = mul(auxBN, bn01);
         }
         result = sum(result, auxBN);
-        result.isNegative = str.contains("-");
 
-        this.intContainer.copy(result.intContainer);
-        this.dotContainer.copy(result.dotContainer);
+        this.isNegative = str.contains("-");;
+        this.intContainer = new booleanContainer(result.intContainer);
+        this.dotContainer = new booleanContainer(result.dotContainer);
     }
 
     private void clearFree(){//не работает
@@ -403,12 +403,12 @@ public class bigNumber {
     }
 
     public static void main(String[] args){
-        bigNumber bd1 = new bigNumber(51462.0, 128);
-        bigNumber bd2 = new bigNumber(14440.234, 128);
+        bigNumber bd1 = new bigNumber("-743.8739071679518");
+        bigNumber bd2 = new bigNumber("-296.923126711913");
         bigNumber bd = div(bd1,bd2, 256);
 
         System.out.println(bd.toDouble());
-        System.out.println(51462.0 / 14440.234);
+        System.out.println(-1040.7970338798648);
 
     }
 }

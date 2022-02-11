@@ -5,21 +5,31 @@ public class bigNumber {
     private booleanContainer dotContainer;
     private boolean isNegative;
 
+    /**новый экземпляр, только для сложения**/
+    private bigNumber(booleanContainer bs){
+        intContainer = new booleanContainer(bs);
+        dotContainer = new booleanContainer(1);
+    }
+    /**новый экземпляр с копированием bigNumber**/
     private bigNumber(bigNumber otherBD){
         intContainer = new booleanContainer(otherBD.intContainer);
         dotContainer = new booleanContainer(otherBD.dotContainer);
         isNegative = otherBD.isNegative;
     }
+    /**новый экземпляр с копированием bigNumber с указанными размерами**/
     private bigNumber(bigNumber otherBD, int csInt, int csDot){
         intContainer = new booleanContainer(otherBD.intContainer, csInt);
         dotContainer = new booleanContainer(otherBD.dotContainer, csDot);
         isNegative = otherBD.isNegative;
     }
-    bigNumber(int intBitCount, int dotBitCount){
+    /**новый экземпляр с указанными размерами**/
+    private bigNumber(int intBitCount, int dotBitCount){
         intContainer = new booleanContainer(intBitCount);
         dotContainer = new booleanContainer(dotBitCount);
         //isNegative = false;
     }
+
+    /**число из int**/
     bigNumber(int number){
         intContainer = new booleanContainer(32);
         dotContainer = new booleanContainer(1);
@@ -32,6 +42,7 @@ public class bigNumber {
             i++;
         }
     }
+    /**число из long**/
     bigNumber(long number){
         intContainer = new booleanContainer(64);
         dotContainer = new booleanContainer(1);
@@ -44,6 +55,7 @@ public class bigNumber {
             i++;
         }
     }
+    /**число из double с заданной двоичной точностью**/
     bigNumber(double number, int precision){
         intContainer = new booleanContainer(256);
         dotContainer = new booleanContainer(precision);
@@ -63,6 +75,7 @@ public class bigNumber {
             dotNumber = dotNumber - (int) dotNumber;
         }
     }
+    /**число из float с заданной двоичной точностью**/
     bigNumber(float number, int precision){
         intContainer = new booleanContainer(256);
         dotContainer = new booleanContainer(precision);
@@ -82,6 +95,7 @@ public class bigNumber {
             dotNumber = dotNumber - (int) dotNumber;
         }
     }
+    /**число из string**/
     bigNumber(String str){
         String[] s = str.replace("-", "").split("\\.");
         bigNumber result = new bigNumber(1, 1);
@@ -102,11 +116,6 @@ public class bigNumber {
         this.intContainer.copy(result.intContainer);
         this.dotContainer.copy(result.dotContainer);
     }
-    /**только для сложения**/
-    private bigNumber(booleanContainer bs){
-        intContainer = new booleanContainer(bs);
-        dotContainer = new booleanContainer(1);
-    }
 
     private void clearFree(){//не работает
         booleanContainer iBS = new booleanContainer(getLeadId());
@@ -123,17 +132,24 @@ public class bigNumber {
         return result;
     }*/
 
-
+    /**самая большая степень 2 в целой части числа**/
     private int getLeadId(){ return intContainer.getBiggestId(); }
+    /**самая большая стерень 0.5 в дробной части числа**/
     private int getLastId(){ return dotContainer.getBiggestId(); }
+    /**значение из целой части числа под индексом i**/
     private boolean getI(int i){ return intContainer.get(i); }
+    /**значение из дробной части числа под индексом i**/
     private boolean getD(int i){ return dotContainer.get(i); }
+    /**значение из целой части числа под индексом i как int**/
     private int getAsInt(int id){ return intContainer.get(id)?1:0; }
+    /**значение из дробной части числа под индексом i как int**/
     private int getAsDot(int id){ return dotContainer.get(id)?1:0; }
+    /**копирование значений в текущий экземпляр**/
     private void copyFrom(bigNumber bd){
         intContainer = new booleanContainer(bd.intContainer);
         dotContainer = new booleanContainer(bd.dotContainer);
     }
+    /****/
     private boolean isAbsBigger(bigNumber bd){
         if(getLeadId() > bd.getLeadId()) return true;
         if(getLeadId() < bd.getLeadId()) return false;
@@ -147,6 +163,7 @@ public class bigNumber {
         }
         return getLastId() >= bd.getLastId();
     }
+    /****/
     public int toInt(){
         int biggestId = intContainer.getBiggestId();
         if(biggestId > 31) throw new IllegalStateException();
@@ -158,6 +175,7 @@ public class bigNumber {
         }
         return result * (isNegative?-1:1);
     }
+    /****/
     public double toDouble(){
         int biggestId = intContainer.getBiggestId();
         int lowestId = dotContainer.getBiggestId();
@@ -186,17 +204,8 @@ public class bigNumber {
         return s.toString();
     }
 
-    private boolean isIntAbsBigger(bigNumber bd){
-        if(getLeadId() > bd.getLeadId()) return true;
-        if(getLeadId() < bd.getLeadId()) return false;
-        for(int i = getLeadId(); i >= 0; i--){
-            if(intContainer.get(i)&&!bd.intContainer.get(i)) return true;
-            if(!intContainer.get(i)&&bd.intContainer.get(i)) return false;
-        }
-        return getLastId() >= bd.getLastId();
-    }
     private static bigNumber intSum(bigNumber bd1, bigNumber bd2){
-        if (bd2.isIntAbsBigger(bd1)){
+        if (bd2.isAbsBigger(bd1)){
             bigNumber temp = bd1;
             bd1 = bd2;
             bd2 = temp;
@@ -343,36 +352,33 @@ public class bigNumber {
         return resultBD;
     }
     public static bigNumber div(bigNumber bd1, bigNumber bd2, int precision){
+        int pos, auxInt, j;
+        bigNumber resultBD = new bigNumber(precision, precision + 1);//
+        auxInt = Math.max(bd1.getLastId(), bd2.getLastId());
+        booleanContainer totalBS1 = new booleanContainer(precision + bd1.getLeadId() + 1);
+        booleanContainer totalBS2 = new booleanContainer(precision + bd1.getLeadId() + 1);
 
-        bigNumber resultBD = new bigNumber(bd1.getLeadId() + bd2.getLeadId(), precision);//
-
-        int auxInt = Math.max(bd1.getLastId(), bd2.getLastId());
-        booleanContainer totalBS1 = new booleanContainer(auxInt + bd1.getLeadId() + 1);
-        booleanContainer totalBS2 = new booleanContainer(auxInt + bd1.getLeadId() + 1);
-
-        int pos;
-
-        totalBS1.set(0, auxInt - bd1.getLastId(), false);
+        //копирование первого числа в полное двоичное преставление
         pos = auxInt - bd1.getLastId();
-        for(int i = bd1.getLastId(); i >= 0; i--) totalBS1.set(pos++, bd1.getD(i));
-        for(int i = 0; i <= bd1.getLeadId(); i++) totalBS1.set(pos++, bd1.getI(i));
-
-        pos = auxInt - bd2.getLastId();
-        totalBS2.set(0, auxInt - bd2.getLastId(), false);
-        for(int i = bd2.getLastId(); i >= 0; i--) totalBS2.set(pos++, bd2.getD(i));
-        for(int i = 0; i <= bd2.getLeadId(); i++) totalBS2.set(pos++, bd2.getI(i));
-
+        for(int i = bd1.getLastId(); i >= 0; i--) totalBS1.set(pos++, bd1.getD(i));//копирование дробной части в начало полного двоичного преставления
+        for(int i = 0; i <= bd1.getLeadId(); i++) totalBS1.set(pos++, bd1.getI(i)); //копирование целой части в начало полного двоичного преставления
         bigNumber totalBD1 = new bigNumber(totalBS1);
+
+        //копирование второго числа в полное двоичное преставление
+        pos = auxInt - bd2.getLastId();
+        for(int i = bd2.getLastId(); i >= 0; i--) totalBS2.set(pos++, bd2.getD(i));//копирование дробной части в начало полного двоичного преставления
+        for(int i = 0; i <= bd2.getLeadId(); i++) totalBS2.set(pos++, bd2.getI(i)); //копирование целой части в начало полного двоичного преставления
         bigNumber totalBD2 = new bigNumber(totalBS2);
 
-        int j = 0;
-        while (totalBD1.isIntAbsBigger(totalBD2)) {
+        //подборка правильного делителя в виде делитель*pow(2, j)
+        j = 0;
+        while (totalBD1.isAbsBigger(totalBD2)) {
             totalBD2 = intMul2(totalBD2);
             j++;
         }
 
         while(j >= 0){
-            if(totalBD1.isIntAbsBigger(totalBD2)){
+            if(totalBD1.isAbsBigger(totalBD2)){
                 totalBD1 = sub(totalBD1, totalBD2);
                 resultBD.intContainer.set(j--, true);
             }else{
@@ -380,10 +386,10 @@ public class bigNumber {
             }
             totalBD2 = intDiv2(totalBD2);
         }
-
+        //вычисление дробной части с заданной точностью
         j = 0;
         while(j <= precision){
-            if(totalBD1.isIntAbsBigger(totalBD2)){
+            if(totalBD1.isAbsBigger(totalBD2)){
                 totalBD1 = sub(totalBD1, totalBD2);
                 resultBD.dotContainer.set(j++, true);
             }else{
@@ -397,22 +403,13 @@ public class bigNumber {
     }
 
     public static void main(String[] args){
-        bigNumber bd1 = new bigNumber(198792.76979, 128);
-        bigNumber bd2 = new bigNumber(32.879987, 128);
-        bigNumber bd = mul(bd1,bd2);
-        /*System.out.println(bd1.toDouble());
-        System.out.println(bd1);
-        System.out.println("-----------");
-        System.out.println(bd2.toDouble());
-        System.out.println(bd2);
-        System.out.println("-----------");*/
+        bigNumber bd1 = new bigNumber(51462.0, 128);
+        bigNumber bd2 = new bigNumber(14440.234, 128);
+        bigNumber bd = div(bd1,bd2, 256);
+
         System.out.println(bd.toDouble());
-        //System.out.println(4.951565007389767E9 * 6.536982112945397E9);
-        /*String s = bd.toString();
-        System.out.println(s);
-        System.out.println(s.length());
-        System.out.println("-----------");
-        System.out.println("end");*/
+        System.out.println(51462.0 / 14440.234);
+
     }
 }
 

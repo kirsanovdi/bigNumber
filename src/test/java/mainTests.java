@@ -56,6 +56,13 @@ public class mainTests {
     @Test
     public void div2Test(){
         Assertions.assertEquals(
+                218.23456 / 4.0,
+                bigNumber.div(
+                        new bigNumber(218.23456, 128),
+                        new bigNumber(4.0, 128),
+                        128).toDouble(),
+                1e-9);
+        Assertions.assertEquals(
                 298.0823111620618 / 321.6695093932683,
                 bigNumber.div(
                         new bigNumber(298.0823111620618, 128),

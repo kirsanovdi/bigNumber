@@ -42,7 +42,7 @@ public class booleanContainer {
         if(from < 0 || from >= size()) System.out.println("incorrect call get() with incl = " + from + " in " + this + " where max is " + size());
         if(to < 0 || to > size()) System.out.println("incorrect call get() with excl = " + to + " in " + this + " where max is " + size());
         booleanContainer resultBC = new booleanContainer(to - from);
-        for(int i = 0, j = from; i < to; i++) resultBC.set(i, value);
+        for(int i = from; i < to; i++) resultBC.set(i, value);
     }
     /**значение в ячейке с индесом pos**/
     public boolean get(int pos){
@@ -73,5 +73,8 @@ public class booleanContainer {
             if (get(i)) return i;
         }
         return size() - 1;
+    }
+    public void clearFree(){
+        size = getBiggestId() + 1;
     }
 }

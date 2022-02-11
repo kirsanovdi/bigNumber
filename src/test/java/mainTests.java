@@ -9,8 +9,8 @@ public class mainTests {
     public void sumTest(){
         Random rnd = new Random();
         for(int i = 0; i < 100000; i++){
-            double a1 = (rnd.nextDouble() * 100000000.0 - rnd.nextDouble() * 100000000.0)/100000.0;
-            double a2 = (rnd.nextDouble() * 100000000.0 - rnd.nextDouble() * 100000000.0)/100000.0;
+            double a1 = rnd.nextDouble() * 1000000000000000.0;
+            double a2 = rnd.nextDouble() * 1000000000000000.0;
             double sum = bigNumber.sum(new bigNumber(a1, 128), new bigNumber(a2, 128)).toDouble();
             Assertions.assertEquals(a1 + a2, sum, 1e-9);
         }
@@ -20,8 +20,8 @@ public class mainTests {
     public void subTest(){
         Random rnd = new Random();
         for(int i = 0; i < 100000; i++){
-            double a1 = (rnd.nextDouble() * 100000000.0 - rnd.nextDouble() * 100000000.0)/100000.0;
-            double a2 = (rnd.nextDouble() * 100000000.0 - rnd.nextDouble() * 100000000.0)/100000.0;
+            double a1 = rnd.nextDouble() * 1000000000000000.0;
+            double a2 = rnd.nextDouble() * 1000000000000000.0;
             double sub = bigNumber.sub(new bigNumber(a1, 128), new bigNumber(a2, 128)).toDouble();
             Assertions.assertEquals(a1 - a2, sub, 1e-9);
         }
@@ -31,11 +31,11 @@ public class mainTests {
     public void mulTest(){
         Random rnd = new Random();
         for(int i = 0; i < 10000; i++){
-            double a1 = (rnd.nextDouble() * 100000000.0 - rnd.nextDouble() * 100000000.0)/100000.0;
-            double a2 = (rnd.nextDouble() * 100000000.0 - rnd.nextDouble() * 100000000.0)/100000.0;
+            double a1 = rnd.nextDouble() * 1000000000000000.0;
+            double a2 = rnd.nextDouble() * 1000000000000000.0;
             double mul = bigNumber.mul(new bigNumber(a1, 128), new bigNumber(a2, 128)).toDouble();
-            if(Math.abs(a1 * a2 - mul) > 1e-8) System.out.println(a1 + " " + a2 + " " + mul);
-            Assertions.assertEquals(a1 * a2, mul, 1e-9);
+            if(Math.abs(a1 * a2 / mul - 1) > 1e-8) System.out.println(a1 + " " + a2 + " " + mul);
+            Assertions.assertEquals(Math.abs(a1 * a2 / mul), 1, 1e-9);
         }
     }
 
@@ -43,13 +43,13 @@ public class mainTests {
     public void divTest(){
         Random rnd = new Random();
         for(int i = 0; i < 10000; i++){
-            double a1 = (rnd.nextDouble() * 100000000.0 - rnd.nextDouble() * 100000000.0)/100000.0;
-            double a2 = (rnd.nextDouble() * 100000000.0 - rnd.nextDouble() * 100000000.0)/100000.0;
+            double a1 = rnd.nextDouble() * 1000000000000000.0;
+            double a2 = rnd.nextDouble() * 1000000000000000.0;
             if (Math.abs(a2) < 1e-5) a2 = a2 + 2.0;
             double div = bigNumber.div(new bigNumber(a1, 128), new bigNumber(a2, 128), 128).toDouble();
             //Assertions.assertEquals(a1 / a2, div, 1e-9);
-            if(Math.abs(a1/a2 - div) > 1e-8) System.out.println(a1 + " " + a2 + " " + div);
-            Assertions.assertEquals(a1 / a2, div, 1e-9);
+            if(Math.abs(a1/a2 / div - 1) > 1e-8) System.out.println(a1 + " " + a2 + " " + div);
+            Assertions.assertEquals(a1 / a2 / div, 1, 1e-9);
         }
     }
 

@@ -112,19 +112,14 @@ public class bigNumber {
         }
         result = sum(result, auxBN);
 
-        this.isNegative = str.contains("-");;
+        this.isNegative = str.contains("-");
         this.intContainer = new booleanContainer(result.intContainer);
         this.dotContainer = new booleanContainer(result.dotContainer);
     }
 
     private void clearFree(){//не работает
-        booleanContainer iBS = new booleanContainer(getLeadId());
-        for(int i = 0; i < iBS.size(); i++) iBS.set(i, intContainer.get(i));
-        intContainer = new booleanContainer(iBS);
-
-        booleanContainer dBS = new booleanContainer(getLastId());
-        for(int i = 0; i < dBS.size(); i++) dBS.set(i, dotContainer.get(i));
-        dotContainer = new booleanContainer(dBS);
+        intContainer.clearFree();
+        dotContainer.clearFree();
     }
     /*private BitSet bitsetCopy(BitSet bitSet){
         BitSet result = new BitSet(bitSet.size());
@@ -308,6 +303,7 @@ public class bigNumber {
             if (minded) resultBD.intContainer.set(i, false);
         }
         resultBD.isNegative = bd1.isNegative;
+        resultBD.clearFree();
         return resultBD;
     }
     public static bigNumber sub(bigNumber bd1, bigNumber bd2){
@@ -348,15 +344,16 @@ public class bigNumber {
         for(int i = posDot; i >= 0; i--) resultBD.dotContainer.set(i, auxBD.getI(j++));
         for(int i = 0; j < auxBD.intContainer.size(); i++) resultBD.intContainer.set(i, auxBD.getI(j++));
         resultBD.isNegative = bd1.isNegative ^ bd2.isNegative;
-        //resultBD.clearFree();
+        resultBD.clearFree();
         return resultBD;
     }
     public static bigNumber div(bigNumber bd1, bigNumber bd2, int precision){
-        int pos, auxInt, j;
+        int pos, auxInt, auxSize, j;
         bigNumber resultBD = new bigNumber(precision, precision + 1);//
         auxInt = Math.max(bd1.getLastId(), bd2.getLastId());
-        booleanContainer totalBS1 = new booleanContainer(precision + bd1.getLeadId() + 1);
-        booleanContainer totalBS2 = new booleanContainer(precision + bd1.getLeadId() + 1);
+        auxSize = bd1.getLeadId() + bd2.dotContainer.getLowestId() + Math.max(precision, auxInt) + 2;
+        booleanContainer totalBS1 = new booleanContainer(auxSize + 1);
+        booleanContainer totalBS2 = new booleanContainer(auxSize + 1);
 
         //копирование первого числа в полное двоичное преставление
         pos = auxInt - bd1.getLastId();
@@ -399,16 +396,19 @@ public class bigNumber {
         }
 
         resultBD.isNegative = bd1.isNegative ^ bd2.isNegative;
+        resultBD.clearFree();
         return resultBD;
     }
 
     public static void main(String[] args){
         bigNumber bd1 = new bigNumber("-743.8739071679518");
         bigNumber bd2 = new bigNumber("-296.923126711913");
-        bigNumber bd = div(bd1,bd2, 256);
+        System.out.println(bd1.toDouble());
+        System.out.println(bd2.toDouble());
+        bigNumber bd = div(bd1,bd2, 128);
 
         System.out.println(bd.toDouble());
-        System.out.println(-1040.7970338798648);
+        System.out.println(-743.8739071679518/-296.923126711913);
 
     }
 }

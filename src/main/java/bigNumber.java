@@ -1,86 +1,88 @@
-import java.util.BitSet;
+//import java.util.BitSet;
 
 public class bigNumber {
-    private BitSet intBitSet;
-    private BitSet dotBitSet;
+    private booleanContainer intContainer;
+    private booleanContainer dotContainer;
     private boolean isNegative;
 
     private bigNumber(bigNumber otherBD){
-        intBitSet = bitsetCopy(otherBD.intBitSet);
-        dotBitSet = bitsetCopy(otherBD.dotBitSet);
+        intContainer = new booleanContainer(otherBD.intContainer);
+        dotContainer = new booleanContainer(otherBD.dotContainer);
+        isNegative = otherBD.isNegative;
+    }
+    private bigNumber(bigNumber otherBD, int csInt, int csDot){
+        intContainer = new booleanContainer(otherBD.intContainer, csInt);
+        dotContainer = new booleanContainer(otherBD.dotContainer, csDot);
         isNegative = otherBD.isNegative;
     }
     bigNumber(int intBitCount, int dotBitCount){
-        intBitSet = new BitSet(intBitCount);
-        dotBitSet = new BitSet(dotBitCount);
+        intContainer = new booleanContainer(intBitCount);
+        dotContainer = new booleanContainer(dotBitCount);
         //isNegative = false;
     }
     bigNumber(int number){
-        intBitSet = new BitSet(32);
-        dotBitSet = new BitSet(1);
+        intContainer = new booleanContainer(32);
+        dotContainer = new booleanContainer(1);
         isNegative = number < 0;
         number = Math.abs(number);
         int i = 0;
         while(number > 0){
-            intBitSet.set(i, number%2 == 1);
+            intContainer.set(i, number%2 == 1);
             number/=2;
             i++;
         }
     }
     bigNumber(long number){
-        intBitSet = new BitSet(64);
-        dotBitSet = new BitSet(1);
+        intContainer = new booleanContainer(64);
+        dotContainer = new booleanContainer(1);
         isNegative = number < 0;
         number = Math.abs(number);
         int i = 0;
         while(number > 0){
-            intBitSet.set(i, number%2 == 1);
+            intContainer.set(i, number%2 == 1);
             number/=2;
             i++;
         }
     }
-
     bigNumber(double number, int precision){
-        intBitSet = new BitSet(32);
-        dotBitSet = new BitSet(precision);
+        intContainer = new booleanContainer(256);
+        dotContainer = new booleanContainer(precision);
         isNegative = number < 0;
         number = Math.abs(number);
         int i = 0;
         long intNumber = (long) number;
         double dotNumber = number - intNumber;
         while(intNumber > 0){
-            intBitSet.set(i, intNumber%2 == 1);
+            intContainer.set(i, intNumber%2 == 1);
             intNumber/=2;
             i++;
         }
         for(i = 0; i < precision; i++){
             dotNumber *= 2;
-            dotBitSet.set(i, dotNumber >= 1);
+            dotContainer.set(i, dotNumber >= 1);
             dotNumber = dotNumber - (int) dotNumber;
         }
     }
-
     bigNumber(float number, int precision){
-        intBitSet = new BitSet(32);
-        dotBitSet = new BitSet(precision);
+        intContainer = new booleanContainer(256);
+        dotContainer = new booleanContainer(precision);
         isNegative = number < 0;
         number = Math.abs(number);
         int i = 0;
         long intNumber = (long) number;
         float dotNumber = number - intNumber;
         while(intNumber > 0){
-            intBitSet.set(i, intNumber%2 == 1);
+            intContainer.set(i, intNumber%2 == 1);
             intNumber/=2;
             i++;
         }
         for(i = 0; i < precision; i++){
             dotNumber *= 2;
-            dotBitSet.set(i, dotNumber >= 1);
+            dotContainer.set(i, dotNumber >= 1);
             dotNumber = dotNumber - (int) dotNumber;
         }
     }
-
-    public static bigNumber bigNumberFromString(String str){
+    bigNumber(String str){
         String[] s = str.replace("-", "").split("\\.");
         bigNumber result = new bigNumber(1, 1);
         bigNumber auxBN = new bigNumber(0);
@@ -96,84 +98,57 @@ public class bigNumber {
         }
         result = sum(result, auxBN);
         result.isNegative = str.contains("-");
-        return result;
-    }
 
+        this.intContainer.copy(result.intContainer);
+        this.dotContainer.copy(result.dotContainer);
+    }
     /**только для сложения**/
-    private bigNumber(BitSet bs){
-        intBitSet = bitsetCopy(bs);
-        dotBitSet = new BitSet(1);
+    private bigNumber(booleanContainer bs){
+        intContainer = new booleanContainer(bs);
+        dotContainer = new booleanContainer(1);
     }
 
-    private void clearFree(){
-        BitSet iBS = new BitSet(getLeadId());
-        for(int i = 0; i < iBS.size(); i++) iBS.set(i, intBitSet.get(i));
-        intBitSet = iBS;
+    private void clearFree(){//не работает
+        booleanContainer iBS = new booleanContainer(getLeadId());
+        for(int i = 0; i < iBS.size(); i++) iBS.set(i, intContainer.get(i));
+        intContainer = new booleanContainer(iBS);
 
-        BitSet dBS = new BitSet(getLastId());
-        for(int i = 0; i < dBS.size(); i++) dBS.set(i, dotBitSet.get(i));
-        dotBitSet = dBS;
+        booleanContainer dBS = new booleanContainer(getLastId());
+        for(int i = 0; i < dBS.size(); i++) dBS.set(i, dotContainer.get(i));
+        dotContainer = new booleanContainer(dBS);
     }
-    private BitSet bitsetCopy(BitSet bitSet){
+    /*private BitSet bitsetCopy(BitSet bitSet){
         BitSet result = new BitSet(bitSet.size());
         for(int i = 0; i < bitSet.size(); i++) result.set(i, bitSet.get(i));
         return result;
-    }
+    }*/
 
-    private static int getBiggestId(BitSet bitSet){
-        for(int i = bitSet.size() - 1; i >= 0; i--){
-            if(bitSet.get(i)) return i;
-        }
-        return 0;
-    }
-    private static int getLowestId(BitSet bitSet) {
-        for (int i = 0; i < bitSet.size(); i++) {
-            if (bitSet.get(i)) return i;
-        }
-        return bitSet.size() - 1;
-    }
-    private int getLeadId(){
-        return getBiggestId(intBitSet);
-    }
-    private int getLastId(){
-        return getBiggestId(dotBitSet);
-    }
-    private boolean getI(int i){
-        return intBitSet.get(i);
-    }
-    private boolean getD(int i){
-        return dotBitSet.get(i);
-    }
-    private int getAsInt(int id){
-        return intBitSet.get(id)?1:0;
-    }
-    private int getAsDot(int id){
-        return dotBitSet.get(id)?1:0;
-    }
+
+    private int getLeadId(){ return intContainer.getBiggestId(); }
+    private int getLastId(){ return dotContainer.getBiggestId(); }
+    private boolean getI(int i){ return intContainer.get(i); }
+    private boolean getD(int i){ return dotContainer.get(i); }
+    private int getAsInt(int id){ return intContainer.get(id)?1:0; }
+    private int getAsDot(int id){ return dotContainer.get(id)?1:0; }
     private void copyFrom(bigNumber bd){
-        for(int i = 0; i<= bd.getLeadId(); i++){
-            intBitSet.set(i, bd.intBitSet.get(i));
-        }
-        for(int i = bd.getLastId(); i >= 0; i--){
-            dotBitSet.set(i, bd.dotBitSet.get(i));
-        }
+        intContainer = new booleanContainer(bd.intContainer);
+        dotContainer = new booleanContainer(bd.dotContainer);
     }
     private boolean isAbsBigger(bigNumber bd){
         if(getLeadId() > bd.getLeadId()) return true;
         if(getLeadId() < bd.getLeadId()) return false;
         for(int i = getLeadId(); i >= 0; i--){
-            if(intBitSet.get(i)&&!bd.intBitSet.get(i)) return true;
-            if(!intBitSet.get(i)&&bd.intBitSet.get(i)) return false;
+            if(intContainer.get(i)&&!bd.intContainer.get(i)) return true;
+            if(!intContainer.get(i)&&bd.intContainer.get(i)) return false;
         }
         for(int i = 0; i <= Math.min(getLastId(), bd.getLastId()); i++){
-            if(dotBitSet.get(i)&&!bd.dotBitSet.get(i)) return true;
-            if(!dotBitSet.get(i)&&bd.dotBitSet.get(i)) return false;
+            if(dotContainer.get(i)&&!bd.dotContainer.get(i)) return true;
+            if(!dotContainer.get(i)&&bd.dotContainer.get(i)) return false;
         }
         return getLastId() >= bd.getLastId();
     }
-
     public int toInt(){
-        int biggestId = getBiggestId(intBitSet);
+        int biggestId = intContainer.getBiggestId();
         if(biggestId > 31) throw new IllegalStateException();
         int result = 0;
         int mod = 1;
@@ -184,8 +159,8 @@ public class bigNumber {
         return result * (isNegative?-1:1);
     }
     public double toDouble(){
-        int biggestId = getBiggestId(intBitSet);
-        int lowestId = getBiggestId(dotBitSet);
+        int biggestId = intContainer.getBiggestId();
+        int lowestId = dotContainer.getBiggestId();
         //if(biggestId > 31) throw new IllegalStateException();
         double intResult = 0;
         double dotResult = 0;
@@ -215,23 +190,19 @@ public class bigNumber {
         if(getLeadId() > bd.getLeadId()) return true;
         if(getLeadId() < bd.getLeadId()) return false;
         for(int i = getLeadId(); i >= 0; i--){
-            if(intBitSet.get(i)&&!bd.intBitSet.get(i)) return true;
-            if(!intBitSet.get(i)&&bd.intBitSet.get(i)) return false;
+            if(intContainer.get(i)&&!bd.intContainer.get(i)) return true;
+            if(!intContainer.get(i)&&bd.intContainer.get(i)) return false;
         }
         return getLastId() >= bd.getLastId();
     }
     private static bigNumber intSum(bigNumber bd1, bigNumber bd2){
-        bigNumber resultBD = new bigNumber(
-                Math.max(bd1.getLeadId(), bd2.getLeadId())
-                        + (bd1.getLeadId() == bd2.getLeadId() && (bd1.isNegative == bd2.isNegative)?1:0),
-                1
-        );
         if (bd2.isIntAbsBigger(bd1)){
             bigNumber temp = bd1;
             bd1 = bd2;
             bd2 = temp;
         }
-        resultBD.copyFrom(bd1);
+        bigNumber resultBD = new bigNumber(bd1, Math.max(bd1.getLeadId(), bd2.getLeadId()) + 2, 1);
+        //resultBD.copyFrom(bd1);
         boolean minded = false;
 
         if(bd1.isNegative == bd2.isNegative){
@@ -241,13 +212,13 @@ public class bigNumber {
                 boolean resBDi = resultBD.getI(i);
                 boolean toAdd = (bd2i == minded) == resBDi;
                 minded = resBDi && bd2i || resBDi && minded || bd2i && minded;
-                resultBD.intBitSet.set(i, toAdd);
+                resultBD.intContainer.set(i, toAdd);
             }
             while (minded && resultBD.getI(i)){
-                resultBD.intBitSet.set(i, false);
+                resultBD.intContainer.set(i, false);
                 i++;
             }
-            if (minded) resultBD.intBitSet.set(i, true);
+            if (minded) resultBD.intContainer.set(i, true);
         }else{
             int i;
             for(i = 0; i <= bd2.getLeadId(); i++){
@@ -255,13 +226,13 @@ public class bigNumber {
                 boolean resBDi = resultBD.getI(i);
                 boolean toAdd = bd2i == (minded == resBDi);
                 minded = bd2i && minded && resBDi || !resBDi && (minded || bd2i);
-                resultBD.intBitSet.set(i, toAdd);
+                resultBD.intContainer.set(i, toAdd);
             }
             while (minded && !resultBD.getI(i)){
-                resultBD.intBitSet.set(i, true);
+                resultBD.intContainer.set(i, true);
                 i++;
             }
-            if (minded) resultBD.intBitSet.set(i, false);
+            if (minded) resultBD.intContainer.set(i, false);
         }
         resultBD.isNegative = bd1.isNegative;
         return resultBD;
@@ -270,21 +241,17 @@ public class bigNumber {
         return intSum(bd, bd);
     }
     private static bigNumber intDiv2(bigNumber bd){
-        return new bigNumber(bd.intBitSet.get(1, bd.intBitSet.size()));
+        return new bigNumber(bd.intContainer.get(1, bd.intContainer.size()));
     }
 
     public static bigNumber sum(bigNumber bd1, bigNumber bd2){
-        bigNumber resultBD = new bigNumber(
-                Math.max(bd1.getLeadId(), bd2.getLeadId())
-                        + (bd1.getLeadId() == bd2.getLeadId() && (bd1.isNegative == bd2.isNegative)?1:0),
-                Math.max(bd1.getLastId(), bd2.getLastId())
-        );
         if (bd2.isAbsBigger(bd1)){
             bigNumber temp = bd1;
             bd1 = bd2;
             bd2 = temp;
         }
-        resultBD.copyFrom(bd1);
+        bigNumber resultBD = new bigNumber(bd1, Math.max(bd1.getLeadId(), bd2.getLeadId()) + 2,
+                Math.max(bd1.getLastId(), bd2.getLastId()) + 1);
         boolean minded = false;
 
         if(bd1.isNegative == bd2.isNegative){
@@ -294,20 +261,20 @@ public class bigNumber {
                 boolean resBDd = resultBD.getD(i);
                 boolean toAdd = (bd2d == minded) == resBDd;
                 minded = resBDd && bd2d || resBDd && minded || bd2d && minded;
-                resultBD.dotBitSet.set(i, toAdd);
+                resultBD.dotContainer.set(i, toAdd);
             }
             for(i = 0; i <= bd2.getLeadId(); i++){
                 boolean bd2i = bd2.getI(i);
                 boolean resBDi = resultBD.getI(i);
                 boolean toAdd = (bd2i == minded) == resBDi;
                 minded = resBDi && bd2i || resBDi && minded || bd2i && minded;
-                resultBD.intBitSet.set(i, toAdd);
+                resultBD.intContainer.set(i, toAdd);
             }
             while (minded && resultBD.getI(i)){
-                resultBD.intBitSet.set(i, false);
+                resultBD.intContainer.set(i, false);
                 i++;
             }
-            if (minded) resultBD.intBitSet.set(i, true);
+            if (minded) resultBD.intContainer.set(i, true);
         }else{
             int i;
             for(i = bd2.getLastId(); i >= 0; i--){
@@ -315,7 +282,7 @@ public class bigNumber {
                 boolean resBDd = resultBD.getD(i);
                 boolean toAdd = bd2d == (minded == resBDd);
                 minded = bd2d && minded && resBDd || !resBDd && (minded || bd2d);
-                resultBD.dotBitSet.set(i, toAdd);
+                resultBD.dotContainer.set(i, toAdd);
             }
 
             for(i = 0; i <= bd2.getLeadId(); i++){
@@ -323,13 +290,13 @@ public class bigNumber {
                 boolean resBDi = resultBD.getI(i);
                 boolean toAdd = bd2i == (minded == resBDi);
                 minded = bd2i && minded && resBDi || !resBDi && (minded || bd2i);
-                resultBD.intBitSet.set(i, toAdd);
+                resultBD.intContainer.set(i, toAdd);
             }
             while (minded && !resultBD.getI(i)){
-                resultBD.intBitSet.set(i, true);
+                resultBD.intContainer.set(i, true);
                 i++;
             }
-            if (minded) resultBD.intBitSet.set(i, false);
+            if (minded) resultBD.intContainer.set(i, false);
         }
         resultBD.isNegative = bd1.isNegative;
         return resultBD;
@@ -344,16 +311,17 @@ public class bigNumber {
         int posInt = bd1.getLeadId() + bd2.getLeadId() + 1;
         int posDot = bd1.getLastId() + bd2.getLastId() + 1;
 
-        bigNumber resultBD = new bigNumber(posInt, posDot);
+        bigNumber resultBD = new bigNumber(posInt + 1, posDot + 1);
         bigNumber auxBD = new bigNumber(1, 1);
 
-        BitSet totalBS1 = new BitSet(bd1.getLeadId() + bd1.getLastId() + 2);
-        BitSet totalBS2 = new BitSet(bd2.getLeadId() + bd2.getLastId() + 2);
+        booleanContainer totalBS1 = new booleanContainer(bd1.getLeadId() + bd1.getLastId() + 2);
+        booleanContainer totalBS2 = new booleanContainer(bd2.getLeadId() + bd2.getLastId() + 2);
 
-        int pos = 0;
+        int pos;
+
+        pos = 0;
         for(int i = bd1.getLastId(); i >= 0; i--) totalBS1.set(pos++, bd1.getD(i));
         for(int i = 0; i <= bd1.getLeadId(); i++) totalBS1.set(pos++, bd1.getI(i));
-
         pos = 0;
         for(int i = bd2.getLastId(); i >= 0; i--) totalBS2.set(pos++, bd2.getD(i));
         for(int i = 0; i <= bd2.getLeadId(); i++) totalBS2.set(pos++, bd2.getI(i));
@@ -368,19 +336,19 @@ public class bigNumber {
         }
         int j = 0;
 
-        for(int i = posDot; i >= 0; i--) resultBD.dotBitSet.set(i, auxBD.getI(j++));
-        for(int i = 0; i <= posInt; i++) resultBD.intBitSet.set(i, auxBD.getI(j++));
+        for(int i = posDot; i >= 0; i--) resultBD.dotContainer.set(i, auxBD.getI(j++));
+        for(int i = 0; j < auxBD.intContainer.size(); i++) resultBD.intContainer.set(i, auxBD.getI(j++));
         resultBD.isNegative = bd1.isNegative ^ bd2.isNegative;
-        resultBD.clearFree();
+        //resultBD.clearFree();
         return resultBD;
     }
     public static bigNumber div(bigNumber bd1, bigNumber bd2, int precision){
 
-        bigNumber resultBD = new bigNumber(1);//
+        bigNumber resultBD = new bigNumber(bd1.getLeadId() + bd2.getLeadId(), precision);//
 
         int auxInt = Math.max(bd1.getLastId(), bd2.getLastId());
-        BitSet totalBS1 = new BitSet(auxInt + bd1.getLeadId() + 1);
-        BitSet totalBS2 = new BitSet(auxInt + bd1.getLeadId() + 1);
+        booleanContainer totalBS1 = new booleanContainer(auxInt + bd1.getLeadId() + 1);
+        booleanContainer totalBS2 = new booleanContainer(auxInt + bd1.getLeadId() + 1);
 
         int pos;
 
@@ -406,9 +374,9 @@ public class bigNumber {
         while(j >= 0){
             if(totalBD1.isIntAbsBigger(totalBD2)){
                 totalBD1 = sub(totalBD1, totalBD2);
-                resultBD.intBitSet.set(j--, true);
+                resultBD.intContainer.set(j--, true);
             }else{
-                resultBD.intBitSet.set(j--, false);
+                resultBD.intContainer.set(j--, false);
             }
             totalBD2 = intDiv2(totalBD2);
         }
@@ -417,9 +385,9 @@ public class bigNumber {
         while(j <= precision){
             if(totalBD1.isIntAbsBigger(totalBD2)){
                 totalBD1 = sub(totalBD1, totalBD2);
-                resultBD.dotBitSet.set(j++, true);
+                resultBD.dotContainer.set(j++, true);
             }else{
-                resultBD.dotBitSet.set(j++, false);
+                resultBD.dotContainer.set(j++, false);
             }
             totalBD1 = intMul2(totalBD1);
         }
@@ -429,19 +397,22 @@ public class bigNumber {
     }
 
     public static void main(String[] args){
-        bigNumber bd1 = bigNumberFromString("1324643665.24353554534");
-        bigNumber bd2 = new bigNumber(10346354567687.98, 64);
-        bigNumber bdDiv = mul(bd1,bd2);
-        System.out.println(bd1.toDouble());
+        bigNumber bd1 = new bigNumber(198792.76979, 128);
+        bigNumber bd2 = new bigNumber(32.879987, 128);
+        bigNumber bd = mul(bd1,bd2);
+        /*System.out.println(bd1.toDouble());
         System.out.println(bd1);
         System.out.println("-----------");
         System.out.println(bd2.toDouble());
         System.out.println(bd2);
+        System.out.println("-----------");*/
+        System.out.println(bd.toDouble());
+        //System.out.println(4.951565007389767E9 * 6.536982112945397E9);
+        /*String s = bd.toString();
+        System.out.println(s);
+        System.out.println(s.length());
         System.out.println("-----------");
-        System.out.println(bdDiv.toDouble());
-        System.out.println(bdDiv);
-        System.out.println("-----------");
-        System.out.println("end");
+        System.out.println("end");*/
     }
 }
 

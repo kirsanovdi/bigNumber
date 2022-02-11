@@ -8,7 +8,7 @@ public class mainTests {
     @Test
     public void sumTest(){
         Random rnd = new Random();
-        for(int i = 0; i < 10000; i++){
+        for(int i = 0; i < 100000; i++){
             double a1 = (rnd.nextDouble() * 100000000.0 - rnd.nextDouble() * 100000000.0)/100000.0;
             double a2 = (rnd.nextDouble() * 100000000.0 - rnd.nextDouble() * 100000000.0)/100000.0;
             double sum = bigNumber.sum(new bigNumber(a1, 128), new bigNumber(a2, 128)).toDouble();
@@ -19,7 +19,7 @@ public class mainTests {
     @Test
     public void subTest(){
         Random rnd = new Random();
-        for(int i = 0; i < 10000; i++){
+        for(int i = 0; i < 100000; i++){
             double a1 = (rnd.nextDouble() * 100000000.0 - rnd.nextDouble() * 100000000.0)/100000.0;
             double a2 = (rnd.nextDouble() * 100000000.0 - rnd.nextDouble() * 100000000.0)/100000.0;
             double sub = bigNumber.sub(new bigNumber(a1, 128), new bigNumber(a2, 128)).toDouble();
@@ -30,7 +30,7 @@ public class mainTests {
     @Test
     public void mulTest(){
         Random rnd = new Random();
-        for(int i = 0; i < 10000; i++){
+        for(int i = 0; i < 100000; i++){
             double a1 = (rnd.nextDouble() * 100000000.0 - rnd.nextDouble() * 100000000.0)/100000.0;
             double a2 = (rnd.nextDouble() * 100000000.0 - rnd.nextDouble() * 100000000.0)/100000.0;
             double mul = bigNumber.mul(new bigNumber(a1, 128), new bigNumber(a2, 128)).toDouble();
@@ -42,7 +42,7 @@ public class mainTests {
     @Test
     public void divTest(){
         Random rnd = new Random();
-        for(int i = 0; i < 10000; i++){
+        for(int i = 0; i < 100; i++){
             double a1 = (rnd.nextDouble() * 100000000.0 - rnd.nextDouble() * 100000000.0)/100000.0;
             double a2 = (rnd.nextDouble() * 100000000.0 - rnd.nextDouble() * 100000000.0)/100000.0;
             if (Math.abs(a2) < 1e-5) a2 = a2 + 2.0;
@@ -85,8 +85,8 @@ public class mainTests {
             double a1 = (rnd.nextDouble() * 100000000.0 - rnd.nextDouble() * 100000000.0)/100000.0;
             double a2 = (rnd.nextDouble() * 100000000.0 - rnd.nextDouble() * 100000000.0)/100000.0;
             double sum = bigNumber.sum(
-                    bigNumber.bigNumberFromString(String.valueOf(a1)),
-                    bigNumber.bigNumberFromString(String.valueOf(a2))
+                    new bigNumber(String.valueOf(a1)),
+                    new bigNumber(String.valueOf(a2))
             ).toDouble();
             Assertions.assertEquals(a1 + a2, sum, 1e-9);
         }

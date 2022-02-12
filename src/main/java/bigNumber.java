@@ -1,6 +1,6 @@
 //import java.util.BitSet;
 
-public class bigNumber {
+public class bigNumber implements Comparable<bigNumber> {
     private booleanContainer intContainer;
     private booleanContainer dotContainer;
     private boolean isNegative;
@@ -197,6 +197,20 @@ public class bigNumber {
         for(int i = 0; i <= getLeadId(); i++) s.insert(0, (getI(i) ? "1" : "0"));
         for(int i = 0; i <= getLastId(); i++) s.append(getD(i) ? "1" : "0");
         return s.toString();
+    }
+
+    public int compareTo(bigNumber otherBN){
+        if(getLeadId() > otherBN.getLeadId()) return 1;
+        if(getLeadId() < otherBN.getLeadId()) return -1;
+        for(int i = getLeadId(); i >= 0; i--){
+            if(intContainer.get(i)&&!otherBN.intContainer.get(i)) return 1;
+            if(!intContainer.get(i)&&otherBN.intContainer.get(i)) return -1;
+        }
+        for(int i = 0; i <= Math.min(getLastId(), otherBN.getLastId()); i++){
+            if(dotContainer.get(i)&&!otherBN.dotContainer.get(i)) return 1;
+            if(!dotContainer.get(i)&&otherBN.dotContainer.get(i)) return -1;
+        }
+        return getLastId() - otherBN.getLastId();
     }
 
     private void intMul2(){

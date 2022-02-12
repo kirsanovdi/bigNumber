@@ -1,6 +1,6 @@
 //import java.util.BitSet;
 
-public class bigNumber implements Comparable<bigNumber> {
+public class BigNumber implements Comparable<BigNumber> {
     private booleanContainer intContainer;
     private booleanContainer dotContainer;
     private boolean isNegative;
@@ -8,7 +8,7 @@ public class bigNumber implements Comparable<bigNumber> {
     /**
      * новый экземпляр, только для сложения
      **/
-    private bigNumber(booleanContainer bs) {
+    private BigNumber(booleanContainer bs) {
         intContainer = new booleanContainer(bs);
         dotContainer = new booleanContainer(1);
     }
@@ -16,7 +16,7 @@ public class bigNumber implements Comparable<bigNumber> {
     /**
      * новый экземпляр с копированием bigNumber
      **/
-    private bigNumber(bigNumber otherBD) {
+    private BigNumber(BigNumber otherBD) {
         intContainer = new booleanContainer(otherBD.intContainer);
         dotContainer = new booleanContainer(otherBD.dotContainer);
         isNegative = otherBD.isNegative;
@@ -25,7 +25,7 @@ public class bigNumber implements Comparable<bigNumber> {
     /**
      * новый экземпляр с копированием bigNumber с указанными размерами
      **/
-    private bigNumber(bigNumber otherBD, int csInt, int csDot) {
+    private BigNumber(BigNumber otherBD, int csInt, int csDot) {
         intContainer = new booleanContainer(otherBD.intContainer, csInt);
         dotContainer = new booleanContainer(otherBD.dotContainer, csDot);
         isNegative = otherBD.isNegative;
@@ -34,7 +34,7 @@ public class bigNumber implements Comparable<bigNumber> {
     /**
      * новый экземпляр с указанными размерами
      **/
-    private bigNumber(int intBitCount, int dotBitCount) {
+    private BigNumber(int intBitCount, int dotBitCount) {
         intContainer = new booleanContainer(intBitCount);
         dotContainer = new booleanContainer(dotBitCount);
         //isNegative = false;
@@ -43,7 +43,7 @@ public class bigNumber implements Comparable<bigNumber> {
     /**
      * число из int
      **/
-    bigNumber(int number) {
+    BigNumber(int number) {
         intContainer = new booleanContainer(32);
         dotContainer = new booleanContainer(1);
         isNegative = number < 0;
@@ -59,7 +59,7 @@ public class bigNumber implements Comparable<bigNumber> {
     /**
      * число из long
      **/
-    bigNumber(long number) {
+    BigNumber(long number) {
         intContainer = new booleanContainer(64);
         dotContainer = new booleanContainer(1);
         isNegative = number < 0;
@@ -75,7 +75,7 @@ public class bigNumber implements Comparable<bigNumber> {
     /**
      * число из double с заданной двоичной точностью
      **/
-    bigNumber(double number, int precision) {
+    BigNumber(double number, int precision) {
         intContainer = new booleanContainer(256);
         dotContainer = new booleanContainer(precision);
         isNegative = number < 0;
@@ -98,7 +98,7 @@ public class bigNumber implements Comparable<bigNumber> {
     /**
      * число из float с заданной двоичной точностью
      **/
-    bigNumber(float number, int precision) {
+    BigNumber(float number, int precision) {
         intContainer = new booleanContainer(256);
         dotContainer = new booleanContainer(precision);
         isNegative = number < 0;
@@ -121,18 +121,18 @@ public class bigNumber implements Comparable<bigNumber> {
     /**
      * число из string
      **/
-    bigNumber(String str) {
-        bigNumber result = new bigNumber(1, 1);
+    BigNumber(String str) {
+        BigNumber result = new BigNumber(1, 1);
         String[] s = str.replace("-", "").split("\\.");
-        bigNumber auxBN = new bigNumber(0);
-        bigNumber bn10 = new bigNumber(10);
-        bigNumber bn01 = new bigNumber(0.1, 128);
+        BigNumber auxBN = new BigNumber(0);
+        BigNumber bn10 = new BigNumber(10);
+        BigNumber bn01 = new BigNumber(0.1, 128);
         for (int i = 0; i < s[0].length(); i++) {
             result = mul(result, bn10);
-            result = sum(result, new bigNumber(s[0].charAt(i) - '0'));
+            result = sum(result, new BigNumber(s[0].charAt(i) - '0'));
         }
         for (int i = s[1].length() - 1; i >= 0; i--) {
-            auxBN = sum(auxBN, new bigNumber(s[1].charAt(i) - '0'));
+            auxBN = sum(auxBN, new BigNumber(s[1].charAt(i) - '0'));
             auxBN = mul(auxBN, bn01);
         }
         result = sum(result, auxBN);
@@ -197,13 +197,13 @@ public class bigNumber implements Comparable<bigNumber> {
     /**
      * копирование значений в текущий экземпляр
      **/
-    private void copyFrom(bigNumber bd) {
+    private void copyFrom(BigNumber bd) {
         intContainer = new booleanContainer(bd.intContainer);
         dotContainer = new booleanContainer(bd.dotContainer);
     }
 
     /****/
-    private boolean isAbsBigger(bigNumber bd) {
+    private boolean isAbsBigger(BigNumber bd) {
         if (getLeadId() > bd.getLeadId()) return true;
         if (getLeadId() < bd.getLeadId()) return false;
         for (int i = getLeadId(); i >= 0; i--) {
@@ -259,7 +259,7 @@ public class bigNumber implements Comparable<bigNumber> {
         return s.toString();
     }
 
-    public int compareTo(bigNumber otherBN) {
+    public int compareTo(BigNumber otherBN) {
         if (getLeadId() > otherBN.getLeadId()) return 1;
         if (getLeadId() < otherBN.getLeadId()) return -1;
         for (int i = getLeadId(); i >= 0; i--) {
@@ -281,13 +281,13 @@ public class bigNumber implements Comparable<bigNumber> {
         intContainer.div2();
     }
 
-    public static bigNumber sum(bigNumber bd1, bigNumber bd2) {
+    public static BigNumber sum(BigNumber bd1, BigNumber bd2) {
         if (bd2.isAbsBigger(bd1)) {
-            bigNumber temp = bd1;
+            BigNumber temp = bd1;
             bd1 = bd2;
             bd2 = temp;
         }
-        bigNumber resultBD = new bigNumber(bd1, Math.max(bd1.getLeadId(), bd2.getLeadId()) + 2,
+        BigNumber resultBD = new BigNumber(bd1, Math.max(bd1.getLeadId(), bd2.getLeadId()) + 2,
                 Math.max(bd1.getLastId(), bd2.getLastId()) + 1);
         boolean minded = false;
 
@@ -340,19 +340,19 @@ public class bigNumber implements Comparable<bigNumber> {
         return resultBD;
     }
 
-    public static bigNumber sub(bigNumber bd1, bigNumber bd2) {
-        bigNumber temp = new bigNumber(bd2);
+    public static BigNumber sub(BigNumber bd1, BigNumber bd2) {
+        BigNumber temp = new BigNumber(bd2);
         temp.isNegative = !bd2.isNegative;
         return sum(bd1, temp);
     }
 
-    public static bigNumber mul(bigNumber bd1, bigNumber bd2) {
+    public static BigNumber mul(BigNumber bd1, BigNumber bd2) {
 
         int posInt = bd1.getLeadId() + bd2.getLeadId() + 1;
         int posDot = bd1.getLastId() + bd2.getLastId() + 1;
 
-        bigNumber resultBD = new bigNumber(posInt + 1, posDot + 1);
-        bigNumber auxBD = new bigNumber(1, 1);
+        BigNumber resultBD = new BigNumber(posInt + 1, posDot + 1);
+        BigNumber auxBD = new BigNumber(1, 1);
 
         booleanContainer totalBS1 = new booleanContainer(bd1.getLeadId() + bd1.getLastId() + 2);
         booleanContainer totalBS2 = new booleanContainer(bd2.getLeadId() + bd2.getLastId() + 2);
@@ -366,7 +366,7 @@ public class bigNumber implements Comparable<bigNumber> {
         for (int i = bd2.getLastId(); i >= 0; i--) totalBS2.set(pos++, bd2.getD(i));
         for (int i = 0; i <= bd2.getLeadId(); i++) totalBS2.set(pos++, bd2.getI(i));
 
-        bigNumber totalBD2 = new bigNumber(totalBS2);
+        BigNumber totalBD2 = new BigNumber(totalBS2);
 
         for (int i = 0; i < totalBS1.size(); i++) {
             if (totalBS1.get(i)) {
@@ -383,9 +383,9 @@ public class bigNumber implements Comparable<bigNumber> {
         return resultBD;
     }
 
-    public static bigNumber div(bigNumber bd1, bigNumber bd2, int precision) {
+    public static BigNumber div(BigNumber bd1, BigNumber bd2, int precision) {
         int pos, auxInt, auxSize, j;
-        bigNumber resultBD = new bigNumber(precision, precision + 1);//
+        BigNumber resultBD = new BigNumber(precision, precision + 1);//
         auxInt = Math.max(bd1.getLastId(), bd2.getLastId());
         auxSize = bd1.getLeadId() + bd2.dotContainer.getLowestId() + Math.max(precision, auxInt) + 2;
         booleanContainer totalBS1 = new booleanContainer(auxSize + 1);
@@ -397,7 +397,7 @@ public class bigNumber implements Comparable<bigNumber> {
             totalBS1.set(pos++, bd1.getD(i));//копирование дробной части в начало полного двоичного преставления
         for (int i = 0; i <= bd1.getLeadId(); i++)
             totalBS1.set(pos++, bd1.getI(i)); //копирование целой части в начало полного двоичного преставления
-        bigNumber totalBD1 = new bigNumber(totalBS1);
+        BigNumber totalBD1 = new BigNumber(totalBS1);
 
         //копирование второго числа в полное двоичное преставление
         pos = auxInt - bd2.getLastId();
@@ -405,7 +405,7 @@ public class bigNumber implements Comparable<bigNumber> {
             totalBS2.set(pos++, bd2.getD(i));//копирование дробной части в начало полного двоичного преставления
         for (int i = 0; i <= bd2.getLeadId(); i++)
             totalBS2.set(pos++, bd2.getI(i)); //копирование целой части в начало полного двоичного преставления
-        bigNumber totalBD2 = new bigNumber(totalBS2);
+        BigNumber totalBD2 = new BigNumber(totalBS2);
 
         //подборка правильного делителя в виде делитель*pow(2, j)
         j = 0;
@@ -443,8 +443,8 @@ public class bigNumber implements Comparable<bigNumber> {
     }
 
     public static void main(String[] args) {
-        bigNumber bd1 = new bigNumber("218.23456");
-        bigNumber bd2 = new bigNumber("4.0");
+        BigNumber bd1 = new BigNumber("218.23456");
+        BigNumber bd2 = new BigNumber("4.0");
         System.out.println(bd1.toDouble());
         System.out.println(bd2.toDouble());
         /*System.out.println(bd1.toDouble());
@@ -453,7 +453,7 @@ public class bigNumber implements Comparable<bigNumber> {
 
         //System.out.println(bd.toDouble());
         //System.out.println(-743.8739071679518/-296.923126711913);
-        bigNumber bd = new bigNumber(1234543.0, 128);
+        BigNumber bd = new BigNumber(1234543.0, 128);
         int t = 5120;
         for (int i = 0; i < t; i++) bd.intMul2();
         System.out.println(bd.toDouble());

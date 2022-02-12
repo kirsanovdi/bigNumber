@@ -260,17 +260,20 @@ public class BigNumber implements Comparable<BigNumber> {
     }
 
     public int compareTo(BigNumber otherBN) {
-        if (getLeadId() > otherBN.getLeadId()) return 1;
-        if (getLeadId() < otherBN.getLeadId()) return -1;
+        if(!this.isNegative && otherBN.isNegative) return 1;
+        if(this.isNegative && !otherBN.isNegative) return -1;
+        final int point = this.isNegative?1:-1;
+        if (getLeadId() > otherBN.getLeadId()) return point;
+        if (getLeadId() < otherBN.getLeadId()) return -point;
         for (int i = getLeadId(); i >= 0; i--) {
-            if (intContainer.get(i) && !otherBN.intContainer.get(i)) return 1;
-            if (!intContainer.get(i) && otherBN.intContainer.get(i)) return -1;
+            if (intContainer.get(i) && !otherBN.intContainer.get(i)) return point;
+            if (!intContainer.get(i) && otherBN.intContainer.get(i)) return -point;
         }
         for (int i = 0; i <= Math.min(getLastId(), otherBN.getLastId()); i++) {
-            if (dotContainer.get(i) && !otherBN.dotContainer.get(i)) return 1;
-            if (!dotContainer.get(i) && otherBN.dotContainer.get(i)) return -1;
+            if (dotContainer.get(i) && !otherBN.dotContainer.get(i)) return point;
+            if (!dotContainer.get(i) && otherBN.dotContainer.get(i)) return -point;
         }
-        return getLastId() - otherBN.getLastId();
+        return (getLastId() - otherBN.getLastId())*point;
     }
 
     private void intMul2() {

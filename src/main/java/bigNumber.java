@@ -199,53 +199,11 @@ public class bigNumber {
         return s.toString();
     }
 
-    private static bigNumber intSum(bigNumber bd1, bigNumber bd2){
-        if (bd2.isAbsBigger(bd1)){
-            bigNumber temp = bd1;
-            bd1 = bd2;
-            bd2 = temp;
-        }
-        bigNumber resultBD = new bigNumber(bd1, Math.max(bd1.getLeadId(), bd2.getLeadId()) + 2, 1);
-        //resultBD.copyFrom(bd1);
-        boolean minded = false;
-
-        if(bd1.isNegative == bd2.isNegative){
-            int i;
-            for(i = 0; i <= bd2.getLeadId(); i++){
-                boolean bd2i = bd2.getI(i);
-                boolean resBDi = resultBD.getI(i);
-                boolean toAdd = (bd2i == minded) == resBDi;
-                minded = resBDi && bd2i || resBDi && minded || bd2i && minded;
-                resultBD.intContainer.set(i, toAdd);
-            }
-            while (minded && resultBD.getI(i)){
-                resultBD.intContainer.set(i, false);
-                i++;
-            }
-            if (minded) resultBD.intContainer.set(i, true);
-        }else{
-            int i;
-            for(i = 0; i <= bd2.getLeadId(); i++){
-                boolean bd2i = bd2.getI(i);
-                boolean resBDi = resultBD.getI(i);
-                boolean toAdd = bd2i == (minded == resBDi);
-                minded = bd2i && minded && resBDi || !resBDi && (minded || bd2i);
-                resultBD.intContainer.set(i, toAdd);
-            }
-            while (minded && !resultBD.getI(i)){
-                resultBD.intContainer.set(i, true);
-                i++;
-            }
-            if (minded) resultBD.intContainer.set(i, false);
-        }
-        resultBD.isNegative = bd1.isNegative;
-        return resultBD;
+    private void intMul2(){
+        intContainer.mul2();
     }
-    private static bigNumber intMul2(bigNumber bd){
-        return intSum(bd, bd);
-    }
-    private static bigNumber intDiv2(bigNumber bd){
-        return new bigNumber(bd.intContainer.get(1, bd.intContainer.size()));
+    private void intDiv2(){
+        intContainer.div2();
     }
 
     public static bigNumber sum(bigNumber bd1, bigNumber bd2){
@@ -335,9 +293,9 @@ public class bigNumber {
 
         for(int i = 0; i < totalBS1.size(); i++){
             if(totalBS1.get(i)){
-                auxBD = intSum(auxBD , totalBD2);
+                auxBD = sum(auxBD , totalBD2);
             }
-            totalBD2 = intMul2(totalBD2);
+            totalBD2.intMul2();
         }
         int j = 0;
 
@@ -370,7 +328,7 @@ public class bigNumber {
         //подборка правильного делителя в виде делитель*pow(2, j)
         j = 0;
         while (totalBD1.isAbsBigger(totalBD2)) {
-            totalBD2 = intMul2(totalBD2);
+            totalBD2.intMul2();
             j++;
         }
 
@@ -381,18 +339,20 @@ public class bigNumber {
             }else{
                 resultBD.intContainer.set(j--, false);
             }
-            totalBD2 = intDiv2(totalBD2);
+            totalBD2.intDiv2();
         }
         //вычисление дробной части с заданной точностью
         j = 0;
         while(j <= precision){
             if(totalBD1.isAbsBigger(totalBD2)){
+                //System.out.println(totalBD1.toDouble() > totalBD2.toDouble());
                 totalBD1 = sub(totalBD1, totalBD2);
                 resultBD.dotContainer.set(j++, true);
             }else{
+                //System.out.println(totalBD1.toDouble() < totalBD2.toDouble());
                 resultBD.dotContainer.set(j++, false);
             }
-            totalBD1 = intMul2(totalBD1);
+            totalBD1.intMul2();
         }
 
         resultBD.isNegative = bd1.isNegative ^ bd2.isNegative;
@@ -401,15 +361,22 @@ public class bigNumber {
     }
 
     public static void main(String[] args){
-        bigNumber bd1 = new bigNumber("-743.8739071679518");
-        bigNumber bd2 = new bigNumber("-296.923126711913");
+        bigNumber bd1 = new bigNumber("218.23456");
+        bigNumber bd2 = new bigNumber("4.0");
         System.out.println(bd1.toDouble());
         System.out.println(bd2.toDouble());
-        bigNumber bd = div(bd1,bd2, 128);
+        /*System.out.println(bd1.toDouble());
+        System.out.println(bd2.toDouble());*/
+        //bigNumber bd = div(bd1,bd2, 128);
 
+        //System.out.println(bd.toDouble());
+        //System.out.println(-743.8739071679518/-296.923126711913);
+        bigNumber bd = new bigNumber(1234543.0, 128);
+        int t = 5120;
+        for(int i = 0; i < t; i++) bd.intMul2();
         System.out.println(bd.toDouble());
-        System.out.println(-743.8739071679518/-296.923126711913);
-
+        for(int i = 0; i < t; i++) bd.intDiv2();
+        System.out.println(bd.toDouble());
     }
 }
 

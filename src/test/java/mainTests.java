@@ -99,4 +99,12 @@ public class mainTests {
             Assertions.assertEquals(a1 + a2, sum, 1e-9);
         }
     }
+
+    @Test
+    public void str2Test(){
+        bigNumber bd1 = new bigNumber("218.23456");
+        bigNumber bd2 = new bigNumber("4.0");
+        bigNumber bd = bigNumber.div(bd1, bd2, 128);
+        Assertions.assertEquals(bd.toDouble(), 218.23456/4.0, 1e-9);
+    }
 }

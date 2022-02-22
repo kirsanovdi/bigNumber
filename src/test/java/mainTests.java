@@ -92,8 +92,8 @@ public class mainTests {
             double a1 = (rnd.nextDouble() * 100000000.0 - rnd.nextDouble() * 100000000.0) / 100000.0;
             double a2 = (rnd.nextDouble() * 100000000.0 - rnd.nextDouble() * 100000000.0) / 100000.0;
             double sum = BigNumber.sum(
-                    new BigNumber(String.valueOf(a1)),
-                    new BigNumber(String.valueOf(a2))
+                    new BigNumber(String.valueOf(a1), 256),
+                    new BigNumber(String.valueOf(a2), 256)
             ).toDouble();
             if (Math.abs(a1 + a2 - sum) > 1e-8) System.out.println(a1 + " " + a2 + " " + sum);
             Assertions.assertEquals(a1 + a2, sum, 1e-9);
@@ -102,8 +102,8 @@ public class mainTests {
 
     @Test
     public void str2Test() {
-        BigNumber bd1 = new BigNumber("218.23456");
-        BigNumber bd2 = new BigNumber("4.0");
+        BigNumber bd1 = new BigNumber("218.23456", 256);
+        BigNumber bd2 = new BigNumber("4.0", 256);
         BigNumber bd = BigNumber.div(bd1, bd2, 128);
         Assertions.assertEquals(bd.toDouble(), 218.23456 / 4.0, 1e-9);
     }

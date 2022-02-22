@@ -49,6 +49,7 @@ public class booleanContainer {
         size = newSize;
     }
 
+
     /**
      * размер
      **/
@@ -75,8 +76,8 @@ public class booleanContainer {
             System.out.println("incorrect call get() with incl = " + from + " in " + this + " where max is " + size());
         if (to < 0 || to > size())
             System.out.println("incorrect call get() with excl = " + to + " in " + this + " where max is " + size());
-        booleanContainer resultBC = new booleanContainer(to - from);
-        for (int i = from; i < to; i++) resultBC.set(i, value);
+        //booleanContainer resultBC = new booleanContainer(to - from);
+        for (int i = from; i < to; i++) set(i, value);
     }
 
     /**
@@ -126,6 +127,11 @@ public class booleanContainer {
 
     public void clearFree() {
         size = getBiggestId() + 1;
+    }
+
+    public void clear() {
+        this.set(0, size(), false);
+        size = 1;
     }
 
     public void mul2() {

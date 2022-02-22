@@ -5,6 +5,12 @@ public class BigNumber implements Comparable<BigNumber> {
     private booleanContainer dotContainer;
     private boolean isNegative;
 
+    private BigNumber(int[] arr, int[] arr2){
+        intContainer = new booleanContainer(arr.length);
+        dotContainer = new booleanContainer(arr2.length);
+        for(int i = arr.length - 1; i >= 0; i--) intContainer.set(i, arr[i]==1);
+        for(int i = 0; i < arr2.length; i++) dotContainer.set(i, arr2[i]==1);
+    }
     /**
      * новый экземпляр, только для сложения
      **/
@@ -121,19 +127,18 @@ public class BigNumber implements Comparable<BigNumber> {
     /**
      * число из string
      **/
-    BigNumber(String str) {
+    BigNumber(String str, int precision) {
         BigNumber result = new BigNumber(1, 1);
         String[] s = str.replace("-", "").split("\\.");
         BigNumber auxBN = new BigNumber(0);
-        BigNumber bn10 = new BigNumber(10);
-        BigNumber bn01 = new BigNumber(0.1, 128);
+        BigNumber bn10 = new BigNumber(10.0, 128);
         for (int i = 0; i < s[0].length(); i++) {
             result = mul(result, bn10);
             result = sum(result, new BigNumber(s[0].charAt(i) - '0'));
         }
         for (int i = s[1].length() - 1; i >= 0; i--) {
             auxBN = sum(auxBN, new BigNumber(s[1].charAt(i) - '0'));
-            auxBN = mul(auxBN, bn01);
+            auxBN = div(auxBN, bn10, precision);
         }
         result = sum(result, auxBN);
 
@@ -146,11 +151,6 @@ public class BigNumber implements Comparable<BigNumber> {
         intContainer.clearFree();
         dotContainer.clearFree();
     }
-    /*private BitSet bitsetCopy(BitSet bitSet){
-        BitSet result = new BitSet(bitSet.size());
-        for(int i = 0; i < bitSet.size(); i++) result.set(i, bitSet.get(i));
-        return result;
-    }*/
 
     /**
      * самая большая степень 2 в целой части числа
@@ -254,8 +254,23 @@ public class BigNumber implements Comparable<BigNumber> {
     @Override
     public String toString() {
         StringBuilder s = new StringBuilder(".");
-        for (int i = 0; i <= getLeadId(); i++) s.insert(0, (getI(i) ? "1" : "0"));
-        for (int i = 0; i <= getLastId(); i++) s.append(getD(i) ? "1" : "0");
+        BigNumber bdInt = new BigNumber(intContainer);
+        BigNumber bdDot = sub(new BigNumber(this), bdInt);
+        BigNumber bd10 = new BigNumber(10.0, 128);
+        while(bdInt.toInt() > 0){
+            BigNumber temp = div(bdInt, bd10, 128);
+            temp.dotContainer.clear();
+            int value = (int)sub(bdInt, mul(temp, bd10)).toDouble();
+            s.insert(0, (char) ('0' + value));
+            bdInt = temp;
+        }
+        while(bdDot.dotContainer.getBiggestId() > 0){
+            BigNumber temp = mul(bdDot, bd10);
+            int value = temp.toInt();
+            temp.intContainer.clear();
+            s.append((char) ('0' + value));
+            bdDot = temp;
+        }
         return s.toString();
     }
 
@@ -446,22 +461,11 @@ public class BigNumber implements Comparable<BigNumber> {
     }
 
     public static void main(String[] args) {
-        BigNumber bd1 = new BigNumber("218.23456");
-        BigNumber bd2 = new BigNumber("4.0");
-        System.out.println(bd1.toDouble());
-        System.out.println(bd2.toDouble());
-        /*System.out.println(bd1.toDouble());
-        System.out.println(bd2.toDouble());*/
-        //bigNumber bd = div(bd1,bd2, 128);
-
-        //System.out.println(bd.toDouble());
-        //System.out.println(-743.8739071679518/-296.923126711913);
-        BigNumber bd = new BigNumber(1234543.0, 128);
-        int t = 5120;
-        for (int i = 0; i < t; i++) bd.intMul2();
-        System.out.println(bd.toDouble());
-        for (int i = 0; i < t; i++) bd.intDiv2();
-        System.out.println(bd.toDouble());
+        BigNumber bd1 = new BigNumber("123.06", 256);//100 не выводит
+        BigNumber bd2 = new BigNumber("200.06", 1280);
+        System.out.println(bd1);
+        System.out.println(bd2);
+        System.out.println(mul(bd1,bd2));
     }
 }
 
